@@ -29,16 +29,18 @@
     <field name="model">library.aircargo</field>
     <field name="arch" type="xml">
       <form>
-        <group>
-          <field name="mawb_no"/>
-        </group>
-        <group>
+        <field name="shipping_type" string="shipping type"/>
+        <group attrs="{'invisible':[('shipping_type','!=','air')]}">
+          <field name="shipping_id" string="mawb no"/>
           <field name="dischare_port"/>
           <field name="departure_date"/>
           <field name="arrival_date"/>
           <field name="flt_no"/>
           <field name="consign_to"/>
           <field name="shipped_by"/>
+        </group>
+        <group attrs="{'invisible':[('shipping_type','!=','ship')]}">
+          <field name="remark"/>
         </group>
         <notebook>
           <page string="Items">
@@ -54,13 +56,14 @@
     <field name="model">library.aircargo_item</field>
     <field name="arch" type="xml">
       <tree>
+        <field name="shipping_type"/>
         <field name="hawb_no"/>
         <field name="pkgs"/>
         <field name="wkg"/>
-        <field name="vol"/>
-        <field name="comodity"/>
+        <field name="vol" attrs="{'invisible':[('shipping_type','=','ship')]}"/>
+        <field name="comodity" attrs="{'invisible':[('shipping_type','=','air')]}"/>
         <field name="shipper_id"/>
-        <field name="cosignee_id"/>
+        <field name="consignee_id"/>
         <field name="payment_id"/>
         <field name="quantity"/>
         <field name="sign"/>
@@ -72,7 +75,7 @@
       </tree>
     </field>
   </record>
-
+<!-- 
   <record id="library_book_ship_tree" model="ir.ui.view">
     <field name="name">Item List</field>
     <field name="model">library.ship_cargo_item</field>
@@ -81,16 +84,14 @@
         <field name="hbl"/>
         <field name="marks"/>
         <field name="pkg"/>
-        <field name="total_cbm"/>
         <field name="weight"/>
-        <field name="cosignee_id"/>
-        <field name="dest_port"/>
+        <field name="consignee_id"/>
         <field name="amount"/>
         <field name="remark"/>
         <field name="state"/>
       </tree>
     </field>
-  </record>
+  </record> -->
 
   <record id="library_book_view_tree_1" model="ir.ui.view">
     <field name="name">Aircargo List</field>
@@ -137,21 +138,31 @@
           <button name="button_set_arival" string="Is available" type="object" attrs="{'invisible' : [ ('state', 'not in', ('draft',))]}" modifiers="{'invisible':[['state','not in',['draft']]]}" options="{}"/>
           <field name="state" widget="statusbar" statusbar_visible="draft,posted" on_change="1" modifiers="{'readonly':true,'required':true}"/>
         </header>
-        <group modifiers="{}">
-          <field name="hawb_no" modifiers="{'required':true}"/>
+        <group>
+          <field name="shipping_type" modifiers="{'required':true}"/>
           <field name="pkgs" modifiers="{'required':true}"/>
           <field name="wkg" modifiers="{'required':true}"/>
-          <field name="vol" modifiers="{'required':true}"/>
           <field name="comodity" modifiers="{'required':true}"/>
           <field name="shipper_id" modifiers="{'required':true}"/>
-          <field name="cosignee_id" modifiers="{'required':true}"/>
-          <field name="payment_id" modifiers="{'required':true}"/>
+          <field name="consignee_id" modifiers="{'required':true}"/>
+        </group>
+        <group modifiers="{}" attrs="{'invisible':[('shipping_type','!=','air')]}">
+          <field name="shipping_id" string="HAWB NO"/>
+          <field name="vol" modifiers="{'required':true}"/>
           <field name="quantity" modifiers="{'required':true}"/>
           <field name="sign" modifiers="{'required':true}"/>
           <field name="location" modifiers="{'required':true}"/>
-          <field name="cargo_id" modifiers="{'required':true}"/>
+          <!-- <field name="cargo_id" modifiers="{'required':true}"/> -->
+        </group>
+        <group attrs="{'invisible':[('shipping_type','!=','ship')]}">
+          <field name="shipping_id" string="HB/L"/>
+          <field name="total_cbm"/>
+          <field name="dest_port"/>
+        </group>
+        <group>
           <field name="reciept" modifiers="{'read_only': true}"/>
-          <field name="customer_order" modifiers="{'read_only': true}"/>
+          <field name="customer_order" modifiers="{'write': false}"/>
+          <field name="payment_id"/>
         </group>
       </form>
     </field>

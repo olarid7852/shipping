@@ -6,16 +6,16 @@ class LibraryBook(models.Model):
     
     # common fields
 
-    id = fi
+    id = fields.Char('ID')
     hbl = fields.Char('HB/L')
     marks = fields.Char('Marks')
     description = fields.Char('Description')
     pkg = fields.Char('No of PKG')
     total_cbm = fields.Char('Total CBM')
     weight = fields.Char('Weight(KGS)')
-    cosignee_id = fields.Many2one(
+    consignee_id = fields.Many2one(
         'res.partner',
-        string="Cosignee"
+        string="Consignee"
     )
     cargo_id = fields.Many2one(
         'library.ship_cargo',

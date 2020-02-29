@@ -3,18 +3,22 @@ from odoo import models, fields, api
 
 class LibraryBook(models.Model):
     _name = 'library.aircargo_item'
-    hawb_no = fields.Char('HAWB NO', required=True)
+
+    # common_fields
+    shipping_id = fields.Char('ID', required=True)
     pkgs = fields.Float('Pkgs', required=True)
     wkg = fields.Float('W.kg', required=True)
-    vol = fields.Float('Vol.kg', required=True)
     comodity = fields.Many2one('product.product')
+    marks = fields.Char('Marks')
+    consignee_id = fields.Many2one(
+        'res.partner',
+        string="Consignee",
+        required=True
+    )
     shipper_id = fields.Many2one(
         'res.partner',
-        string='Shipper'
-    )
-    cosignee_id = fields.Many2one(
-        'res.partner',
-        string="Cosignee"
+        string='Shipper',
+        required=True
     )
     payment_id = fields.Many2one(
         'account.move',
@@ -23,11 +27,7 @@ class LibraryBook(models.Model):
     cargo_id = fields.Many2one(
         'library.aircargo',
         string="Cargo",
-        required=True,
     )
-    quantity = fields.Integer('Quantity', required=True)
-    sign = fields.Char('Sign', required=True)
-    location = fields.Char('Location', required=True)
     state = fields.Selection([
         ('draft', 'Draft'),
         ('arrived', 'Arrived'),
@@ -39,14 +39,40 @@ class LibraryBook(models.Model):
         string="Order",
     )
     shipping_type = fields.Selection([
-        ('ship', 'Ship'),
-        ('air', 'Air')
-    ])
+            ('ship', 'Ship'),
+            ('air', 'Air'),
+        ], required=True
+    )
     reciept = fields.Many2one(
         'stock.picking',
         string="Reciept",
     )
-    
+    remark = fields.Char('Remarks')
+
+    #Shipping only fields
+    total_cbm = fields.Char('Total CBM')
+    dest_port = fields.Char('Dest. Port')
+    hbl = fields.Char(compute='_get_hawb_no', store=True)
+
+    # Aircargo only fields
+    vol = fields.Float('Vol.kg')
+    quantity = fields.Integer('Quantity')
+    sign = fields.Char('Sign')
+    location = fields.Char('Location')
+    hawb_no = fields.Char(compute='_get_hbl', store=True)
+
+    @api.depends('shipping_id',)
+    def _get_hawb_no(self):
+        for rule in self:
+            rule.hawb_no = self.shipping_id
+            # rule.hbl = self.shipping_id
+
+    @api.depends('shipping_id',)
+    def _get_hbl(self):
+        for rule in self:
+            rule.hbl = self.shipping_id
+            # rule.hbl = self.shipping_id
+
     @api.model
     def create(self, vals):
         new_item = super(LibraryBook, self).create(vals)
@@ -73,7 +99,7 @@ class LibraryBook(models.Model):
             'move_type': 'direct',
             'user_id': 1,
             'company_id': 1,
-            'partner_id': self.cosignee_id.id,
+            'partner_id': self.consignee_id.id,
             'origin': False,
             'owner_id': False,
             'priority': False,
@@ -110,7 +136,7 @@ class LibraryBook(models.Model):
             'move_type': 'direct',
             'user_id': 1,
             'company_id': 1,
-            'partner_id': self.cosignee_id.id,
+            'partner_id': self.consignee_id.id,
             'origin': False,
             'owner_id': False,
             'priority': False,
@@ -132,7 +158,7 @@ class LibraryBook(models.Model):
         self.write({'state': 'arrived'})
         create_method = self.env['account.move'].create
         data = {'user_id': 1,
-                'type': 'out_invoice', 'journal_id': 1, 'partner_id': self.cosignee_id.id, 'shipment_item_id': self.id}
+                'type': 'out_invoice', 'journal_id': 1, 'partner_id': self.consignee_id.id, 'shipment_item_id': self.id}
         # import pudb
         # pudb.set_trace()
         journal = self.env['account.journal'].search(
@@ -145,8 +171,8 @@ class LibraryBook(models.Model):
         tax_price = 0.15 * product_price
         total_price = product_price + tax_price
         import pudb; pudb.set_trace()
-        recievable_account = self.cosignee_id.property_account_receivable_id
-        payable_account = self.cosignee_id.property_account_payable_id
+        recievable_account = self.consignee_id.property_account_receivable_id
+        payable_account = self.consignee_id.property_account_payable_id
         
         if journal.default_debit_account_id:
             recievable_account = journal.default_debit_account_id
