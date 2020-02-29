@@ -36,9 +36,10 @@ class MyPicking(models.Model):
     shipment_item_id = fields.Many2one(
         string="Shipment Item",
         comodel_name="library.aircargo_item",
-        ondelete="set null",
+        ondelete="cascade",
+        readonly=True
     )
-    hawb_no = fields.Char(related='shipment_item_id.hawb_no')
+    shipping_id = fields.Char(related='shipment_item_id.shipping_id')
 
     def get_shipping_item(self):
         return self.env['library.aircargo_item'].search(
@@ -126,9 +127,10 @@ class MyInvoice(models.Model):
     shipment_item_id = fields.Many2one(
         string="Shipment Item",
         comodel_name="library.aircargo_item",
-        ondelete="set null",
+        ondelete="cascade",
+        readonly=True
     )
-    hawb_no = fields.Char(related='shipment_item_id.hawb_no')
+    shipping_id = fields.Char(related='shipment_item_id.shipping_id')
 
     def check_for_availability_of_good(self):
         good = self.env['library.aircargo_item'].search(

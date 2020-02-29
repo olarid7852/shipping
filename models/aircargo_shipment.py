@@ -11,6 +11,8 @@ class LibraryBook(models.Model):
     departure_date = fields.Date('Departure Date', required=True)
     items = fields.One2many('library.aircargo_item',
                             'cargo_id', string='items')
+    ship_items = fields.One2many('library.aircargo_item',
+                            'cargo_id', string='items')
 
     #aircargo fields
     # mawb_no = fields.Char('MAWB NO')

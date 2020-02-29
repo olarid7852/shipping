@@ -8,7 +8,7 @@ class LibraryBook(models.Model):
     shipping_id = fields.Char('ID', required=True)
     pkgs = fields.Float('Pkgs', required=True)
     wkg = fields.Float('W.kg', required=True)
-    comodity = fields.Many2one('product.product')
+    products = fields.Many2one('product.product', string="Product")
     marks = fields.Char('Marks')
     consignee_id = fields.Many2one(
         'res.partner',
@@ -22,11 +22,13 @@ class LibraryBook(models.Model):
     )
     payment_id = fields.Many2one(
         'account.move',
-        string="payment"
+        string="payment",
+        readonly=True
     )
     cargo_id = fields.Many2one(
         'library.aircargo',
         string="Cargo",
+        readonly=True
     )
     state = fields.Selection([
         ('draft', 'Draft'),
@@ -37,29 +39,33 @@ class LibraryBook(models.Model):
     customer_order = fields.Many2one(
         'stock.picking',
         string="Order",
+        readonly=True
     )
-    shipping_type = fields.Selection([
-            ('ship', 'Ship'),
-            ('air', 'Air'),
-        ], required=True
-    )
+    # shipping_type = fields.Selection([
+    #         ('ship', 'Ship'),
+    #         ('air', 'Air'),
+    #     ], required=True
+    # )
+
+    shipping_type = fields.Selection(related='cargo_id.shipping_type')
     reciept = fields.Many2one(
         'stock.picking',
         string="Reciept",
+        readonly=True
     )
     remark = fields.Char('Remarks')
 
     #Shipping only fields
     total_cbm = fields.Char('Total CBM')
     dest_port = fields.Char('Dest. Port')
-    hbl = fields.Char(compute='_get_hawb_no', store=True)
+    hbl = fields.Char(compute='_get_hbl', store=False)
 
     # Aircargo only fields
     vol = fields.Float('Vol.kg')
     quantity = fields.Integer('Quantity')
     sign = fields.Char('Sign')
     location = fields.Char('Location')
-    hawb_no = fields.Char(compute='_get_hbl', store=True)
+    hawb_no = fields.Char(compute='_get_hawb_no', store=False)
 
     @api.depends('shipping_id',)
     def _get_hawb_no(self):
@@ -80,7 +86,7 @@ class LibraryBook(models.Model):
         return new_item
 
     def get_product(self):
-      return self.env['product.product'].search([('id', '=', self.comodity)])
+      return self.env['product.product'].search([('id', '=', self.products)])
 
     def collected(self):
         self.write({'state': 'collected'})
@@ -117,7 +123,7 @@ class LibraryBook(models.Model):
             'additional': False,
             # 'date_expected': '2020-02-25 11:38:34',
             'name': self.hawb_no,
-            'product_id': self.comodity.id,
+            'product_id': self.products.id,
             'description_picking': self.hawb_no,
             'quantity_done': self.quantity,
             'product_uom': 1,
@@ -170,7 +176,7 @@ class LibraryBook(models.Model):
         product_price = product_price_per_unit * self.quantity
         tax_price = 0.15 * product_price
         total_price = product_price + tax_price
-        import pudb; pudb.set_trace()
+        # import pudb; pudb.set_trace()
         recievable_account = self.consignee_id.property_account_receivable_id
         payable_account = self.consignee_id.property_account_payable_id
         
@@ -248,7 +254,7 @@ class LibraryBook(models.Model):
                   'currency_id': False,
                   'partner_id': False,
                   'product_uom_id': 1,
-                  'product_id': self.comodity.id,
+                  'product_id': self.products.id,
                   'payment_id': False,
                   'tax_ids': [[6, False, [1]]],
                   'tax_base_amount': 0,
@@ -270,7 +276,7 @@ class LibraryBook(models.Model):
         #     "product_uom_id": 1,
         #     "quantity": 2,
         #     "account_id": 33,
-        #     "product_id": self.comodity.id})]
+        #     "product_id": self.products.id})]
         # }
 # 'user_id': self.cosignee_id, 'name': self.hawb_no, 'invoice_vendor_bill_id': invoice_id, 'price_unit': 10})
         # journal_id = self.env['account.move.line'].create(
@@ -280,7 +286,7 @@ class LibraryBook(models.Model):
         # 'move_id': invoice_id.id,
         # 'partner_id': self.cosignee_id.id,
         # 'company_id': self.cosignee_id.id,
-        # 'product_id': self.comodity.id,
+        # 'product_id': self.products.id,
         # 'quantity': 1.0,
         # 'date_maturity': False,
         # 'price_unit': 12,

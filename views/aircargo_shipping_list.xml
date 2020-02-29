@@ -1,0 +1,23 @@
+<?xml version="1.0" encoding="utf-8"?>
+<odoo>  <!-- Data records go here -->
+  <record id="view_air_shipping_tree" model="ir.ui.view">
+    <field name="name">Shipping List</field>
+    <field name="model">library.aircargo</field>
+    <field name="arch" type="xml">
+      <tree>
+        <field name="mawb_no"/>
+        <field name="dischare_port"/>
+        <field name="departure_date"/>
+        <field name="arrival_date"/>
+        <field name="shipped_by"/>
+      </tree>
+    </field>
+  </record>
+  <record id='action_air_shipping_list' model='ir.actions.act_window'>
+    <field name="name">Shipping list</field>
+    <field name="domain">[('shipping_type','=','air')]</field>
+    <field name="res_model">library.aircargo</field>
+    <field name="view_id" ref="view_air_shipping_tree"/>
+    <field name="view_mode">tree,form</field>
+  </record>
+</odoo>

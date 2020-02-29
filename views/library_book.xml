@@ -19,9 +19,6 @@
     <field name="view_mode">form,tree</field>
   </record>
 
-  <!-- <menuitem name="Aircargo single shipment" id="library_base_menu" action="aircago_shipment_item"/> -->
-  <menuitem name="Aircargo Shipments" id="library_book_menu" parent="account.menu_finance" action="library_book_action"/>
-  <menuitem name="Ship Shipments" id="library_ship_menu" action="ship_action"/>
 
 
   <record id="library_book_view_form" model="ir.ui.view">
@@ -29,11 +26,13 @@
     <field name="model">library.aircargo</field>
     <field name="arch" type="xml">
       <form>
-        <field name="shipping_type" string="shipping type"/>
+        <group>
+          <field name="shipping_type" string="shipping type"/>
+          <field name="departure_date"/>
+        </group>
         <group attrs="{'invisible':[('shipping_type','!=','air')]}">
           <field name="shipping_id" string="mawb no"/>
           <field name="dischare_port"/>
-          <field name="departure_date"/>
           <field name="arrival_date"/>
           <field name="flt_no"/>
           <field name="consign_to"/>
@@ -43,8 +42,45 @@
           <field name="remark"/>
         </group>
         <notebook>
-          <page string="Items">
-            <field name="items"/>
+          <page string="Items" attrs="{'invisible':[('shipping_type','!=','air')]}">
+            <field name="items" widget="one2many">
+              <tree editable='bottom'>
+                <field name="shipping_id" string="hawb_no"/>
+                <field name="products"/>
+                <field name="pkgs"/>
+                <field name="wkg"/>
+                <field name="vol"/>
+                <field name="shipper_id"/>
+                <field name="consignee_id"/>
+                <field name="payment_id"/>
+                <field name="quantity"/>
+                <field name="sign"/>
+                <field name="location"/>
+                <field name="state"/>
+                <field name="customer_order"/>
+                <field name="reciept"/>
+                <!-- <field name="cargo_id"/> -->
+              </tree>
+            </field>
+          </page>
+          <page string="Ship Items" attrs="{'invisible':[('shipping_type','!=','ship')]}">
+            <field name="ship_items" widget="one2many">
+              <tree editable='bottom'>
+                <field name="shipping_id" string="HBL"/>
+                <field name="products"/>
+                <field name="pkgs"/>
+                <field name="wkg"/>
+                <field name="shipper_id"/>
+                <field name="consignee_id"/>
+                <field name="payment_id"/>
+                <field name="state"/>
+                <field name="total_cbm"/>
+                <field name="dest_port"/>
+                <field name="customer_order"/>
+                <field name="reciept"/>
+                <field name="cargo_id"/>
+              </tree>
+            </field>
           </page>
         </notebook>
       </form>
@@ -61,7 +97,7 @@
         <field name="pkgs"/>
         <field name="wkg"/>
         <field name="vol" attrs="{'invisible':[('shipping_type','=','ship')]}"/>
-        <field name="comodity" attrs="{'invisible':[('shipping_type','=','air')]}"/>
+        <field name="products" attrs="{'invisible':[('shipping_type','=','air')]}"/>
         <field name="shipper_id"/>
         <field name="consignee_id"/>
         <field name="payment_id"/>
@@ -71,11 +107,10 @@
         <field name="state"/>
         <field name="customer_order"/>
         <field name="reciept"/>
-
       </tree>
     </field>
   </record>
-<!-- 
+  <!-- 
   <record id="library_book_ship_tree" model="ir.ui.view">
     <field name="name">Item List</field>
     <field name="model">library.ship_cargo_item</field>
@@ -142,7 +177,7 @@
           <field name="shipping_type" modifiers="{'required':true}"/>
           <field name="pkgs" modifiers="{'required':true}"/>
           <field name="wkg" modifiers="{'required':true}"/>
-          <field name="comodity" modifiers="{'required':true}"/>
+          <field name="products" modifiers="{'required':true}"/>
           <field name="shipper_id" modifiers="{'required':true}"/>
           <field name="consignee_id" modifiers="{'required':true}"/>
         </group>
@@ -171,10 +206,10 @@
   <record id="vpicktree_inherit" model="ir.ui.view">
     <field name="name">stock.picking.tree.inherit</field>
     <field name="model">stock.picking</field>
-     <field name="inherit_id" ref="stock.vpicktreep"></field>
+    <field name="inherit_id" ref="stock.vpicktreep"></field>
     <field name="arch" type="xml">
       <xpath expr="//field[@name='state']" position="before">
-        <field name="hawb_no"/>
+        <field name="shipping_id"/>
         <field name="shipment_item_id"/>
       </xpath>
     </field>
@@ -185,74 +220,21 @@
     <field name="inherit_id" ref="stock.view_picking_form"></field>
     <field name="arch" type="xml">
       <xpath expr="//field[@name='picking_type_id']" position="before">
-        <field name="hawb_no"/>
+        <field name="shipping_id"/>
         <field name="shipment_item_id"/>
       </xpath>
     </field>
   </record>
-  
+
   <record id="invoice_form_inherit" model="ir.ui.view">
     <field name="name">account.move.form.inherit</field>
     <field name="model">account.move</field>
     <field name="inherit_id" ref="account.view_move_form"></field>
     <field name="arch" type="xml">
       <xpath expr="//field[@name='invoice_date']" position="before">
-        <field name="hawb_no"/>
+        <field name="shipping_id"/>
         <field name="shipment_item_id"/>
       </xpath>
     </field>
   </record>
-
-
-  <record id="openacademy_settings_view2" model="ir.ui.view">
-    <field name="name">Openacademy Configuration</field>
-    <field name="model">res.config.settings</field>
-    <field name="inherit_id" ref="base.res_config_settings_view_form" />
-    <field name="arch" type="xml">
-      <xpath expr="//div[hasclass('settings')]" position="inside">
-        <div class="app_settings_block" data-string="Open Academy Data-String" string="Open Academy" data-key="openacademy">
-          <h2>General Settings</h2>
-          <div class="row mt16 o_settings_container">
-            <div class="col-xs-12 col-md-6 o_setting_box">
-              <div class="o_setting_right_pane">
-                <label for="my_setting"/>
-                <div class="text-muted">
-                </div>
-                <div class="content-group">
-                  <div class="mt16">
-                    <field name="my_setting" class="o_light_label"/>
-                  </div>
-                </div>
-              </div>
-            </div>
-            <!-- <div class="col-xs-12 col-md-6 o_setting_box">
-              <div class="o_setting_right_pane">
-                <label for="default_seats"/>
-                <div class="text-muted">
-                                    Description text 2
-                </div>
-                <div class="content-group">
-                  <div class="mt16">
-                     <field name="my_setting" class="o_light_label"/>
-                  </div>
-                </div>
-              </div> -->
-            <!-- </div> -->
-          </div>
-        </div>
-      </xpath>
-    </field>
-  </record>
-
-  <record id="openacademy_settings_action" model="ir.actions.act_window">
-    <field name="name">Openacademy Configuration</field>
-    <field name="res_model">res.config.settings</field>
-    <field name="view_id" ref="openacademy_settings_view2"/>
-    <field name="view_mode">form</field>
-    <field name="target">inline</field>
-    <field name="context">{'module' : 'library'}</field>
-  </record>
-
-  <menuitem id="settings_menu" name="MyModuleConfig" parent="account.menu_finance" action="openacademy_settings_action"/>
-
 </odoo>
