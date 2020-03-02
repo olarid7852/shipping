@@ -1,3 +1,0 @@
-id,name,model_id:id,group_id:id,perm_read,perm_write,perm_create,perm_unlink
-cargo_admin,Cargo admin access,model_library_aircargo,group_accountant,1,1,1,1
-cargo_item_admin,Cargo Item Admin,model_library_aircargo_item,group_accountant,1,1,1,1

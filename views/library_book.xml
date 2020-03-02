@@ -2,7 +2,7 @@
 <odoo>  <!-- Data records go here -->
   <record id='library_book_action' model='ir.actions.act_window'>
     <field name="name">Aircargo List</field>
-    <field name="res_model">library.aircargo</field>
+    <field name="res_model">shipping.cargo</field>
     <!-- <field name="view_type">form</field> -->
     <field name="view_mode">tree,form</field>
   </record>
@@ -14,7 +14,7 @@
   </record>
   <record id='aircago_shipment_item' model='ir.actions.act_window'>
     <field name="name">Product</field>
-    <field name="res_model">library.aircargo_item</field>
+    <field name="res_model">shipping.shipping_item</field>
     <!-- <field name="view_type">form</field> -->
     <field name="view_mode">form,tree</field>
   </record>
@@ -23,7 +23,7 @@
 
   <record id="library_book_view_form" model="ir.ui.view">
     <field name="name">Aircargo Edit</field>
-    <field name="model">library.aircargo</field>
+    <field name="model">shipping.cargo</field>
     <field name="arch" type="xml">
       <form>
         <group>
@@ -89,7 +89,7 @@
 
   <record id="library_book_view_tree" model="ir.ui.view">
     <field name="name">Item List</field>
-    <field name="model">library.aircargo_item</field>
+    <field name="model">shipping.shipping_item</field>
     <field name="arch" type="xml">
       <tree>
         <field name="shipping_type"/>
@@ -110,27 +110,10 @@
       </tree>
     </field>
   </record>
-  <!-- 
-  <record id="library_book_ship_tree" model="ir.ui.view">
-    <field name="name">Item List</field>
-    <field name="model">library.ship_cargo_item</field>
-    <field name="arch" type="xml">
-      <tree>
-        <field name="hbl"/>
-        <field name="marks"/>
-        <field name="pkg"/>
-        <field name="weight"/>
-        <field name="consignee_id"/>
-        <field name="amount"/>
-        <field name="remark"/>
-        <field name="state"/>
-      </tree>
-    </field>
-  </record> -->
 
   <record id="library_book_view_tree_1" model="ir.ui.view">
     <field name="name">Aircargo List</field>
-    <field name="model">library.aircargo</field>
+    <field name="model">shipping.cargo</field>
     <field name="arch" type="xml">
       <tree>
         <field name="mawb_no"/>
@@ -142,36 +125,14 @@
     </field>
   </record>
 
-  <record id="library_book_view_tree_3" model="ir.ui.view">
-    <field name="name">Shpping List</field>
-    <field name="model">library.ship_cargo</field>
-    <field name="arch" type="xml">
-      <tree>
-        <field name="date"/>
-        <field name="remark"/>
-      </tree>
-    </field>
-  </record>
-
-  <!-- <record id="library_book_view_search" model="ir.ui.view">
-    <field name="name">Library Book Search</field>
-    <field name="model">library.shipment</field>
-    <field name="arch" type="xml">
-      <search>
-        <field name="name"/>
-        <field name="author_ids"/>
-        <filter string="No Authors" name="without_author" domain="[('author_ids','=',False)]"/>
-      </search>
-    </field>
-  </record> -->
   <record id="library_book_view_form_6" model="ir.ui.view">
     <field name="name">Aircargo Edit</field>
-    <field name="model">library.aircargo_item</field>
+    <field name="model">shipping.shipping_item</field>
     <field name="arch" type="xml">
       <form modifiers="{}">
         <header modifiers="{}">
-          <button name="button_set_arival" string="Is available" type="object" attrs="{'invisible' : [ ('state', 'not in', ('draft',))]}" modifiers="{'invisible':[['state','not in',['draft']]]}" options="{}"/>
-          <field name="state" widget="statusbar" statusbar_visible="draft,posted" on_change="1" modifiers="{'readonly':true,'required':true}"/>
+          <!-- <button name="button_set_arival" string="Is available" type="object" attrs="{'invisible' : [ ('state', 'not in', ('draft',))]}" modifiers="{'invisible':[['state','not in',['draft']]]}" options="{}"/> -->
+          <field name="state" widget="statusbar" statusbar_visible="draft,arrived,paid,collected" on_change="1" modifiers="{'readonly':true,'required':true}"/>
         </header>
         <group>
           <field name="shipping_type" modifiers="{'required':true}"/>

@@ -1,6 +1,6 @@
 from odoo import models, fields, api
-class LibraryBook(models.Model):
-    _name = 'library.aircargo'
+class ShippingCargo(models.Model):
+    _name = 'shipping.cargo'
 
     #general_fields
     shipping_id = fields.Char("ID")
@@ -9,9 +9,9 @@ class LibraryBook(models.Model):
         ('air', 'Air'),
     ], required=True, string="Shipping Type")
     departure_date = fields.Date('Departure Date', required=True)
-    items = fields.One2many('library.aircargo_item',
+    items = fields.One2many('shipping.shipping_item',
                             'cargo_id', string='items')
-    ship_items = fields.One2many('library.aircargo_item',
+    ship_items = fields.One2many('shipping.shipping_item',
                             'cargo_id', string='items')
 
     #aircargo fields
@@ -20,7 +20,7 @@ class LibraryBook(models.Model):
     arrival_date = fields.Date('Arrival Date')
     flt_no = fields.Char('Fleet No')
     consign_to = fields.Char('Consign to')
-    shipped_by = fields.Many2one('res.partner')
+    shipped_by = fields.Many2one('res.partner', ondelete="cascade")
     mawb_no = fields.Char(compute='_get_mawb', store=True)
 
     #shipping fields

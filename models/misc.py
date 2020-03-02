@@ -1,48 +1,17 @@
 from odoo import models, fields, api
 
-
-class LibraryBook(models.Model):
-    _name = 'library.ship_cargo_item'
-    
-    # common fields
-
-    id = fields.Char('ID')
-    hbl = fields.Char('HB/L')
-    marks = fields.Char('Marks')
-    description = fields.Char('Description')
-    pkg = fields.Char('No of PKG')
-    total_cbm = fields.Char('Total CBM')
-    weight = fields.Char('Weight(KGS)')
-    consignee_id = fields.Many2one(
-        'res.partner',
-        string="Consignee"
-    )
-    cargo_id = fields.Many2one(
-        'library.ship_cargo',
-        string="Cargo",
-    )
-    dest_port = fields.Char('Dest. Port')
-    amount = fields.Integer('Amount')
-    remark = fields.Char('Remarks')
-    state = fields.Selection([
-        ('draft', 'Draft'),
-        ('arrived', 'Arrived'),
-        ('paid', 'Paid'),
-        ('collected', 'Collected'),
-    ], 'Status', default='draft', index=True, required=True, readonly=True, copy=False, track_visibility='always')
-
 class MyPicking(models.Model):
     _inherit = "stock.picking"
     shipment_item_id = fields.Many2one(
         string="Shipment Item",
-        comodel_name="library.aircargo_item",
+        comodel_name="shipping.shipping_item",
         ondelete="cascade",
         readonly=True
     )
     shipping_id = fields.Char(related='shipment_item_id.shipping_id')
 
     def get_shipping_item(self):
-        return self.env['library.aircargo_item'].search(
+        return self.env['shipping.shipping_item'].search(
             [('id', '=', self.shipment_item_id.id)])
 
     def set_shipping_item_to_collected(self):
@@ -126,14 +95,14 @@ class MyInvoice(models.Model):
     _inherit = "account.move"
     shipment_item_id = fields.Many2one(
         string="Shipment Item",
-        comodel_name="library.aircargo_item",
+        comodel_name="shipping.shipping_item",
         ondelete="cascade",
         readonly=True
     )
     shipping_id = fields.Char(related='shipment_item_id.shipping_id')
 
     def check_for_availability_of_good(self):
-        good = self.env['library.aircargo_item'].search(
+        good = self.env['shipping.shipping_item'].search(
             [('payment_id', '=', self.id)])
         return good
 

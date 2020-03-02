@@ -2,7 +2,7 @@
 <odoo>  <!-- Data records go here -->
   <record id="view_ship_shipping_tree" model="ir.ui.view">
     <field name="name">Shipping List</field>
-    <field name="model">library.aircargo</field>
+    <field name="model">shipping.cargo</field>
     <field name="arch" type="xml">
       <tree>
         <field name="departure_date"/>
@@ -13,7 +13,7 @@
   <record id='action_ship_shipping_list' model='ir.actions.act_window'>
     <field name="name">Shipping list</field>
     <field name="domain">[('shipping_type','=','ship')]</field>
-    <field name="res_model">library.aircargo</field>
+    <field name="res_model">shipping.cargo</field>
     <field name="view_id" ref="view_ship_shipping_tree"/>
     <field name="view_mode">tree,form</field>
   </record>

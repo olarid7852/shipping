@@ -1,33 +1,38 @@
 from odoo import models, fields, api
 
 
-class LibraryBook(models.Model):
-    _name = 'library.aircargo_item'
+class ShippingItem(models.Model):
+    _name = 'shipping.shipping_item'
 
     # common_fields
     shipping_id = fields.Char('ID', required=True)
     pkgs = fields.Float('Pkgs', required=True)
     wkg = fields.Float('W.kg', required=True)
-    products = fields.Many2one('product.product', string="Product")
+    products = fields.Many2one(
+        'product.product', string="Product", ondelete="cascade")
     marks = fields.Char('Marks')
     consignee_id = fields.Many2one(
         'res.partner',
         string="Consignee",
+        ondelete="cascade",
         required=True
     )
     shipper_id = fields.Many2one(
         'res.partner',
         string='Shipper',
+        ondelete="cascade",
         required=True
     )
     payment_id = fields.Many2one(
         'account.move',
         string="payment",
+        ondelete="cascade",
         readonly=True
     )
     cargo_id = fields.Many2one(
-        'library.aircargo',
+        'shipping.cargo',
         string="Cargo",
+        ondelete="cascade",
         readonly=True
     )
     state = fields.Selection([
@@ -39,6 +44,7 @@ class LibraryBook(models.Model):
     customer_order = fields.Many2one(
         'stock.picking',
         string="Order",
+        ondelete="cascade",
         readonly=True
     )
     # shipping_type = fields.Selection([
@@ -51,6 +57,7 @@ class LibraryBook(models.Model):
     reciept = fields.Many2one(
         'stock.picking',
         string="Reciept",
+        ondelete="cascade",
         readonly=True
     )
     remark = fields.Char('Remarks')
@@ -95,6 +102,9 @@ class LibraryBook(models.Model):
         self.write({'state': 'paid'})
 
     def create_reciept_and_customer_order(self):
+        quantity_done = self.quantity
+        if not quantity_done:
+            quantity_done = self.wkg
         data = {
             'is_locked': True,
             'immediate_transfer': True,
@@ -125,7 +135,7 @@ class LibraryBook(models.Model):
             'name': self.hawb_no,
             'product_id': self.products.id,
             'description_picking': self.hawb_no,
-            'quantity_done': self.quantity,
+            'quantity_done': quantity_done,
             'product_uom': 1,
             'picking_id': picking.id
         }
@@ -174,6 +184,8 @@ class LibraryBook(models.Model):
         create_method = self.env['account.move.line'].create
         product_price_per_unit = 5
         product_price = product_price_per_unit * self.quantity
+        if not product_price:
+            product_price = product_price_per_unit * self.wkg
         tax_price = 0.15 * product_price
         total_price = product_price + tax_price
         # import pudb; pudb.set_trace()

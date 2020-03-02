@@ -7,20 +7,20 @@ class ResConfigSettings(models.TransientModel):
     my_setting = fields.Char(string='My Setting')
     sale_account = fields.Many2one(
         "account.account",
-      string="Sale account journal",
-      ondelete="set null",
-      default=0
+        string="Sale account journal",
+        ondelete="cascade",
+        default=0
     )
     tax_account = fields.Many2one(
         "account.account",
         string="Tax account journal",
-        ondelete="set null",
+        ondelete="cascade",
         default=0
     )
     general_account = fields.Many2one(
         "account.account",
         string="General account journal",
-        ondelete="set null",
+        ondelete="cascade",
         default=0
     )
 
