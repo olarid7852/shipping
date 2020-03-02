@@ -1,0 +1,3 @@
+id,name,model_id:id,group_id:id,perm_read,perm_write,perm_create,perm_unlink
+cargo_admin,Cargo admin access,model_shipping_cargo,group_accountant,1,1,1,1
+cargo_item_admin,Cargo Item Admin,model_shipping_shipping_item,group_accountant,1,1,1,1

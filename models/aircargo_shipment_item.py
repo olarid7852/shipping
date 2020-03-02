@@ -88,7 +88,7 @@ class ShippingItem(models.Model):
 
     @api.model
     def create(self, vals):
-        new_item = super(LibraryBook, self).create(vals)
+        new_item = super(ShippingItem, self).create(vals)
         new_item.create_reciept_and_customer_order()
         return new_item
 

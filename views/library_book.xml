@@ -8,7 +8,7 @@
   </record>
   <record id='ship_action' model='ir.actions.act_window'>
     <field name="name">Shipping list</field>
-    <field name="res_model">library.ship_cargo</field>
+    <field name="res_model">shipping.cargo</field>
     <!-- <field name="view_type">form</field> -->
     <field name="view_mode">tree,form</field>
   </record>
