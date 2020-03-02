@@ -172,138 +172,35 @@ class ShippingItem(models.Model):
     def button_set_arival(self):
         self.payment_id.action_post()
         self.write({'state': 'arrived'})
-        create_method = self.env['account.move'].create
-        data = {'user_id': 1,
-                'type': 'out_invoice', 'journal_id': 1, 'partner_id': self.consignee_id.id, 'shipment_item_id': self.id}
-        # import pudb
-        # pudb.set_trace()
-        journal = self.env['account.journal'].search(
-            [('id', '=', 1)])
-        invoice_id = create_method(data)
-        # self.create_reciept_and_customer_order()
-        create_method = self.env['account.move.line'].create
         product_price_per_unit = 5
         product_price = product_price_per_unit * self.quantity
+        quantity = self.quantity
         if not product_price:
             product_price = product_price_per_unit * self.wkg
+            quantity = self.wkg
         tax_price = 0.15 * product_price
         total_price = product_price + tax_price
         # import pudb; pudb.set_trace()
         recievable_account = self.consignee_id.property_account_receivable_id
         payable_account = self.consignee_id.property_account_payable_id
-        
-        if journal.default_debit_account_id:
-            recievable_account = journal.default_debit_account_id
-        if journal.default_credit_account_id:
-            payable_account = journal.default_credit_account_id
+        # if journal.default_credit_account_id:
+        #     payable_account = journal.default_credit_account_id
         recievable_account_id = recievable_account.id
         payable_account_id = payable_account.id
-        line_1 = {
-            'account_id': recievable_account_id,
-            # 'sequence': 10,
-            'name': False,
-            'quantity': 1,
-            'price_unit': -1 * total_price,
-            'discount': 0,
-            'debit': total_price,
-            'credit': 0,
-            'amount_currency': 0,
-            'date_maturity': '2020-02-24',
-            'currency_id': False,
-            'partner_id': False,
-            'product_uom_id': False,
-            'product_id': False,
-            'payment_id': False,
-            'tax_ids': [[6, False, []]],
-            'tax_base_amount': 0,
-            'tax_exigible': True,
-            'tax_repartition_line_id': False,
-            'tag_ids': [[6, False, []]],
-            'analytic_account_id': False,
-            'analytic_tag_ids': [[6, False, []]],
-            'recompute_tax_line': False,
-            'display_type': False,
-            'is_rounding_line': False,
-            'exclude_from_invoice_tab': True,
-            'move_id': invoice_id.id}
-        line_2 = {'account_id': payable_account_id,
-                #   'sequence': 10,
-                  'name': 'Tax 15.00%',
-                  'quantity': 1,
-                  'price_unit': tax_price,
-                  'discount': 0,
-                  'debit': 0,
-                  'credit': tax_price,
-                  'amount_currency': 0,
-                  'date_maturity': False,
-                  'currency_id': False,
-                  'partner_id': False,
-                  'product_uom_id': False,
-                  'product_id': False,
-                  'payment_id': False,
-                  'tax_ids': [[6, False, []]],
-                  'tax_base_amount': 102,
-                  'tax_exigible': True,
-                  'tax_repartition_line_id': 2,
-                  'tag_ids': [[6, False, []]],
-                  'analytic_account_id': False,
-                  'analytic_tag_ids': [[6, False, []]],
-                  'recompute_tax_line': False,
-                  'display_type': False,
-                  'is_rounding_line': False,
-                  'exclude_from_invoice_tab': True,
-                  'move_id': invoice_id.id}
-        line_3 = {'account_id': payable_account_id,
-                #   'sequence': 10,
-                  'name': 'Cake mold',
-                  'quantity': self.quantity,
-                  'price_unit': product_price_per_unit,
-                  'discount': 0,
-                  'debit': 0,
-                  'credit': product_price,
-                  'amount_currency': 0,
-                  'date_maturity': False,
-                  'currency_id': False,
-                  'partner_id': False,
-                  'product_uom_id': 1,
-                  'product_id': self.products.id,
-                  'payment_id': False,
-                  'tax_ids': [[6, False, [1]]],
-                  'tax_base_amount': 0,
-                  'tax_exigible': True,
-                  'tax_repartition_line_id': False,
-                  'tag_ids': [[6, False, []]],
-                  'analytic_account_id': False,
-                  'analytic_tag_ids': [[6, False, []]],
-                  'recompute_tax_line': False,
-                  'display_type': False,
-                  'is_rounding_line': False,
-                  'exclude_from_invoice_tab': False,
-                  'move_id': invoice_id.id}
-        data = [line_1, line_2, line_3]
-        create_method(data)
-        # {
-        #     "name": self.hawb_no,
-        #     "price_unit": 88,
-        #     "product_uom_id": 1,
-        #     "quantity": 2,
-        #     "account_id": 33,
-        #     "product_id": self.products.id})]
-        # }
-# 'user_id': self.cosignee_id, 'name': self.hawb_no, 'invoice_vendor_bill_id': invoice_id, 'price_unit': 10})
-        # journal_id = self.env['account.move.line'].create(
-        #     {'move_id': invoice_id.id, 'name': 'Main', 'quantity': 1, 'price_unit': self.wkg * 4, 'account_id': 33})
-        # invoice_line=self.env['account.move.line'].create(
-        #                                              {'name': self.hawb_no,
-        # 'move_id': invoice_id.id,
-        # 'partner_id': self.cosignee_id.id,
-        # 'company_id': self.cosignee_id.id,
-        # 'product_id': self.products.id,
-        # 'quantity': 1.0,
-        # 'date_maturity': False,
-        # 'price_unit': 12,
-        # 'account_id': 33
-        # })
-        print(invoice_id)
-        self.write({'payment_id': invoice_id})
+        import pudb; pudb.set_trace()
+        invoice_vals = {
+            'type': 'out_invoice',
+            'invoice_user_id': 1,
+            'partner_id': self.consignee_id.id,
+            'invoice_line_ids': [(0, 0, {
+                'name': self.products.name,
+                'price_unit': product_price_per_unit,
+                'quantity': quantity,
+                'product_id': self.products.id,
+                'product_uom_id': False,
+                'tax_ids': [(6, 0, [1])],
+            })],
+        }
+        invoice = self.env['account.move'].create(invoice_vals)
+        self.write({'payment_id': invoice.id})
         self.env.cr.commit()
