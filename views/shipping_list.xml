@@ -5,6 +5,7 @@
     <field name="model">shipping.cargo</field>
     <field name="arch" type="xml">
       <tree>
+        <field name="shipping_id" string="ID"/>
         <field name="departure_date"/>
         <field name="remark"/>
       </tree>

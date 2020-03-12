@@ -29,10 +29,12 @@
         <group>
           <field name="shipping_type" string="shipping type"/>
           <field name="departure_date"/>
+          <field name="data_file"/>
+          <button name="import_file" string="Import" type="object" class="oe_highlight" attrs="{'invisible':[('id','>', 0)]}"/>
         </group>
         <group attrs="{'invisible':[('shipping_type','!=','air')]}">
           <field name="shipping_id" string="mawb no"/>
-          <field name="dischare_port"/>
+          <field name="discharge_port"/>
           <field name="arrival_date"/>
           <field name="flt_no"/>
           <field name="consign_to"/>
@@ -46,19 +48,22 @@
             <field name="items" widget="one2many">
               <tree editable='bottom'>
                 <field name="shipping_id" string="hawb_no"/>
-                <field name="products"/>
                 <field name="pkgs"/>
                 <field name="wkg"/>
                 <field name="vol"/>
+                <field name="products" string="Commodity"/>
+                <field name="marks" string="Marks"/>
                 <field name="shipper_id"/>
                 <field name="consignee_id"/>
-                <field name="payment_id"/>
+                <field name="payment_choice"/>
+                <field name="payment_company"/>
+                <!-- <field name="payment_id"/> -->
                 <field name="quantity"/>
                 <field name="sign"/>
                 <field name="location"/>
-                <field name="state"/>
+                <!-- <field name="state"/>
                 <field name="customer_order"/>
-                <field name="reciept"/>
+                <field name="reciept"/> -->
                 <!-- <field name="cargo_id"/> -->
               </tree>
             </field>
@@ -67,15 +72,35 @@
             <field name="ship_items" widget="one2many">
               <tree editable='bottom'>
                 <field name="shipping_id" string="HBL"/>
-                <field name="products"/>
+                <field name="marks" string="Marks"/>
+                <field name="shipper_id"/>
+                <field name="products" string="Goods Description"/>
                 <field name="pkgs"/>
+                <field name="total_cbm"/>
                 <field name="wkg"/>
+                <field name="consignee_id"/>
+                <field name="dest_port"/>
+                <field name="payment_choice"/>
+                <field name="payment_company"/>
+                <!-- <field name="payment_id"/>
+                <field name="state"/>
+                <field name="customer_order"/>
+                <field name="reciept"/>
+                <field name="cargo_id"/> -->
+              </tree>
+            </field>
+          </page>
+          <page string="Detailed">
+            <field name="general_items" widget="one2many">
+              <tree editable='bottom'>
+                <field name="shipping_id" string="ID"/>
+                <field name="products" string="Commodity"/>
+                <field name="marks" string="Marks"/>
                 <field name="shipper_id"/>
                 <field name="consignee_id"/>
-                <field name="payment_id"/>
+                <field name="payment_choice"/>
+                <field name="payment_company"/>
                 <field name="state"/>
-                <field name="total_cbm"/>
-                <field name="dest_port"/>
                 <field name="customer_order"/>
                 <field name="reciept"/>
                 <field name="cargo_id"/>
@@ -117,7 +142,7 @@
     <field name="arch" type="xml">
       <tree>
         <field name="mawb_no"/>
-        <field name="dischare_port"/>
+        <field name="discharge_port"/>
         <field name="departure_date"/>
         <field name="arrival_date"/>
         <field name="shipped_by"/>
@@ -131,8 +156,8 @@
     <field name="arch" type="xml">
       <form modifiers="{}">
         <header modifiers="{}">
-          <!-- <button name="button_set_arival" string="Is available" type="object" attrs="{'invisible' : [ ('state', 'not in', ('draft',))]}" modifiers="{'invisible':[['state','not in',['draft']]]}" options="{}"/> -->
-          <field name="state" widget="statusbar" statusbar_visible="draft,arrived,paid,collected" on_change="1" modifiers="{'readonly':true,'required':true}"/>
+          <button name="button_set_arival" string="Is available" type="object" attrs="{'invisible' : [ ('state', 'not in', ('draft',))]}" modifiers="{'invisible':[['state','not in',['draft']]]}" options="{}"/>
+          <field name="state" widget="statusbar" statusbar_visible="draft,arrived,in_inventory,paid,collected" on_change="1" modifiers="{'readonly':true,'required':true}"/>
         </header>
         <group>
           <field name="shipping_type" modifiers="{'required':true}"/>

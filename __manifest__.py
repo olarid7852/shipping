@@ -6,7 +6,7 @@
     'website': "http://www.example.com", 
     'category': 'Uncategorized', 
     'version': '12.0.1', 
-    'depends': ['base', 'web', 'account', 'stock'],
+    'depends': ['base', 'web', 'account', 'l10n_us', 'om_account_accountant', 'stock'],
     'data': [
         'security/groups.xml',
         'security/ir.model.access.csv',

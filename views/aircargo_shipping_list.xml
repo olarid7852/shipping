@@ -5,8 +5,8 @@
     <field name="model">shipping.cargo</field>
     <field name="arch" type="xml">
       <tree>
-        <field name="mawb_no"/>
-        <field name="dischare_port"/>
+        <field name="shipping_id" string="mawb_no"/>
+        <field name="discharge_port"/>
         <field name="departure_date"/>
         <field name="arrival_date"/>
         <field name="shipped_by"/>

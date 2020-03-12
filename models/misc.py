@@ -85,7 +85,7 @@ class MyPicking(models.Model):
         self._send_confirmation_email()
         if self.picking_type_id.id == 1:
             shipping_item = self.get_shipping_item()
-            shipping_item.set_arrived()
+            shipping_item.set_in_inventory()
             
         elif self.picking_type_id.id == 2:
             self.set_shipping_item_to_collected()

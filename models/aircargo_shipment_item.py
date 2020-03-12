@@ -8,6 +8,8 @@ class ShippingItem(models.Model):
     shipping_id = fields.Char('ID', required=True)
     pkgs = fields.Float('Pkgs', required=True)
     wkg = fields.Float('W.kg', required=True)
+    payment_choice = fields.Float('Payment(Choice)', required=True)
+    payment_company = fields.Float('Clearing Charges', required=True)
     products = fields.Many2one(
         'product.product', string="Product", ondelete="cascade")
     marks = fields.Char('Marks')
@@ -38,6 +40,7 @@ class ShippingItem(models.Model):
     state = fields.Selection([
         ('draft', 'Draft'),
         ('arrived', 'Arrived'),
+        ('in_inventory', 'In Inventory'),
         ('paid', 'Paid'),
         ('collected', 'Collected'),
     ], 'Status', default='draft', index=True, required=True, readonly=True, copy=False, track_visibility='always')
@@ -66,6 +69,7 @@ class ShippingItem(models.Model):
     total_cbm = fields.Char('Total CBM')
     dest_port = fields.Char('Dest. Port')
     hbl = fields.Char(compute='_get_hbl', store=False)
+    shipping_order = fields.Char(compute='_get_hbl', store=False)
 
     # Aircargo only fields
     vol = fields.Float('Vol.kg')
@@ -89,7 +93,7 @@ class ShippingItem(models.Model):
     @api.model
     def create(self, vals):
         new_item = super(ShippingItem, self).create(vals)
-        new_item.create_reciept_and_customer_order()
+        # new_item.create_reciept_and_customer_order()
         return new_item
 
     def get_product(self):
@@ -166,32 +170,25 @@ class ShippingItem(models.Model):
         self.write({'reciept': picking.id})
         picking.action_assign()
 
-    def set_arrived(self):
-        return self.button_set_arival()
+    def set_in_inventory(self):
+        self.write({'state': 'in_inventory'})
+        self.payment_id.action_post()
+        self.env.cr.commit()
+        return True
 
     def button_set_arival(self):
-        self.payment_id.action_post()
+        self.create_reciept_and_customer_order()
         self.write({'state': 'arrived'})
         product_price_per_unit = 5
-        product_price = product_price_per_unit * self.quantity
         quantity = self.quantity
-        if not product_price:
-            product_price = product_price_per_unit * self.wkg
+        if not quantity:
             quantity = self.wkg
-        tax_price = 0.15 * product_price
-        total_price = product_price + tax_price
-        # import pudb; pudb.set_trace()
-        recievable_account = self.consignee_id.property_account_receivable_id
-        payable_account = self.consignee_id.property_account_payable_id
-        # if journal.default_credit_account_id:
-        #     payable_account = journal.default_credit_account_id
-        recievable_account_id = recievable_account.id
-        payable_account_id = payable_account.id
-        import pudb; pudb.set_trace()
         invoice_vals = {
             'type': 'out_invoice',
+            
             'invoice_user_id': 1,
             'partner_id': self.consignee_id.id,
+            'shipment_item_id': self.id,
             'invoice_line_ids': [(0, 0, {
                 'name': self.products.name,
                 'price_unit': product_price_per_unit,
@@ -200,6 +197,31 @@ class ShippingItem(models.Model):
                 'product_uom_id': False,
                 'tax_ids': [(6, 0, [1])],
             })],
+        }
+        invoice_vals = {
+            'type': 'out_invoice',
+            'invoice_user_id': 1,
+            'partner_id': self.consignee_id.id,
+            'invoice_line_ids': [
+                (0, 0, {
+                    'name': 'Choice',
+                    'price_unit': self.payment_choice,
+                    'quantity': 1,
+                    'product_id': self.products.id,
+                    'product_uom_id': False,
+                    'account_id': 1,
+                    # 'tax_ids': [(6, 0, [1])],
+                }),
+                (0, 0, {
+                    'name': 'Company',
+                    'price_unit': self.payment_company,
+                    'quantity': 1,
+                    'product_id': self.products.id,
+                    'product_uom_id': False,
+                    'account_id': 2,
+                    # 'tax_ids': [(6, 0, [1])],
+                }),
+            ],
         }
         invoice = self.env['account.move'].create(invoice_vals)
         self.write({'payment_id': invoice.id})
