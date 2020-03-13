@@ -155,7 +155,7 @@ class ShippingCargo(models.Model):
             new_item_data['consignee_id'] = consignee.id
 
             shipper_data = item_data['shipper']
-            hipper = self.find_or_create_partner(
+            shipper = self.find_or_create_partner(
                 self.shipping_type, shipper_data)
             new_item_data['shipper_id'] = shipper.id
             new_item_data['cargo_id'] = cargo.id
