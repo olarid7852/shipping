@@ -84,37 +84,14 @@ class ShippingCargo(models.Model):
             else:
                 new_item_data['products'] = product.id
             consignee_data = item_data['name']
-            consignee_name = consignee_data.split("\n")[0]
-            consignee_phone_no = consignee_data.split("\n")[1]
-            consignee = self.env['res.partner'].search(
-                [('name', '=', consignee_name)])
-            if not consignee:
-                partner = self.env['res.partner'].create({
-                    'name': consignee_name,
-                    'phone': consignee_phone_no
-                })
-                shipper = self.env['res.company'].create({
-                    'name': consignee_name,
-                    'partner_id': partner.id
-                })
+            consignee = self.find_or_create_partner(
+                self.shipping_type, consignee_data)
             new_item_data['consignee_id'] = consignee.id
 
             shipper_data = item_data['shipper']
-            shipper_name = shipper_data.split("\n")[0]
-            shipper_phone_no = shipper_data.split("\n")[1]
-            partner = self.env['res.partner'].search([('name', '=', shipper_name)])
-            if not partner:
-                partner = self.env['res.partner'].create({
-                    'name': shipper_name,
-                    'phone': shipper_phone_no
-                })
-                shipper = self.env['res.company'].create({
-                    'name': shipper_name,
-                    'partner_id': partner.id
-                })
-
-            
-            new_item_data['shipper_id'] = partner.id
+            shipper = self.find_or_create_partner(
+                self.shipping_type, shipper_data)
+            new_item_data['shipper_id'] = shipper.id
             new_item_data['cargo_id'] = cargo.id
             for field in same_fields:
                 new_item_data[field] = item_data[field]
@@ -179,7 +156,7 @@ class ShippingCargo(models.Model):
             new_item_data['consignee_id'] = consignee.id
 
             shipper_data = item_data['shipper']
-            shipper = self.find_or_create_partner(
+            hipper = self.find_or_create_partner(
                 self.shipping_type, shipper_data)
             new_item_data['shipper_id'] = shipper.id
             new_item_data['cargo_id'] = cargo.id
