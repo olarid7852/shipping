@@ -127,7 +127,6 @@ class ShippingCargo(models.Model):
         shipment_data = aircargo_sheets.populate_shipment_data(
             self.shipping_type, sheet)
         # import pudb; pudb.set_trace()
-        shipment_data['departure_date'] = datetime.fromisoformat(shipment_data['departure_date'])
         shipment_data['shipping_type'] = 'ship'
         # cargo = self.env['shipping.cargo'].create(shipment_data)
         shipment_data = self.clean_dic(shipment_data)
