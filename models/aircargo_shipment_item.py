@@ -19,12 +19,14 @@ class ShippingItem(models.Model):
         ondelete="cascade",
         required=True
     )
+    consignee_detail = fields.Char(ralated='consignee_id.detail')
     shipper_id = fields.Many2one(
         'res.partner',
         string='Shipper',
         ondelete="cascade",
         required=True
     )
+    shipper_detail = fields.Char(ralated='shipper_id.name')
     payment_id = fields.Many2one(
         'account.move',
         string="payment",
@@ -80,14 +82,14 @@ class ShippingItem(models.Model):
 
     @api.depends('shipping_id',)
     def _get_hawb_no(self):
-        for rule in self:
-            rule.hawb_no = self.shipping_id
+        for item in self:
+            item.hawb_no = item.shipping_id
             # rule.hbl = self.shipping_id
 
     @api.depends('shipping_id',)
     def _get_hbl(self):
-        for rule in self:
-            rule.hbl = self.shipping_id
+        for item in self:
+            item.hbl = item.shipping_id
             # rule.hbl = self.shipping_id
 
     @api.model

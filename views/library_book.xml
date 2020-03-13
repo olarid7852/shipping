@@ -26,6 +26,10 @@
     <field name="model">shipping.cargo</field>
     <field name="arch" type="xml">
       <form>
+        <header modifiers="{}">
+          <button name="action_set_arival" string="Is available" type="object" attrs="{'invisible' : [ ('state', 'not in', ('draft',))]}" modifiers="{'invisible':[['state','not in',['draft']]]}" options="{}"/>
+          <field name="state" widget="statusbar" statusbar_visible="draft,arrived" on_change="1" modifiers="{'readonly':true,'required':true}"/>
+        </header>
         <group>
           <field name="shipping_type" string="shipping type"/>
           <field name="departure_date"/>
@@ -55,6 +59,9 @@
                 <field name="marks" string="Marks"/>
                 <field name="shipper_id"/>
                 <field name="consignee_id"/>
+                <field name="consignee_detail"/>
+                <field name="shipper_detail"/>
+                <field name="shipping_type"/>
                 <field name="payment_choice"/>
                 <field name="payment_company"/>
                 <!-- <field name="payment_id"/> -->
@@ -156,7 +163,6 @@
     <field name="arch" type="xml">
       <form modifiers="{}">
         <header modifiers="{}">
-          <button name="button_set_arival" string="Is available" type="object" attrs="{'invisible' : [ ('state', 'not in', ('draft',))]}" modifiers="{'invisible':[['state','not in',['draft']]]}" options="{}"/>
           <field name="state" widget="statusbar" statusbar_visible="draft,arrived,in_inventory,paid,collected" on_change="1" modifiers="{'readonly':true,'required':true}"/>
         </header>
         <group>

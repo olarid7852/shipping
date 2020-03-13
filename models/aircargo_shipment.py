@@ -25,7 +25,10 @@ class ShippingCargo(models.Model):
 
     # aircargo fields
     # mawb_no = fields.Char('MAWB NO')
-    
+    state = fields.Selection([
+        ('draft', 'Draft'),
+        ('arrived', 'Arrived'),
+    ], 'Status', default='draft', index=True, required=True, readonly=True, copy=False, track_visibility='always')
     discharge_port = fields.Char('Port of discharge')
     arrival_date = fields.Date('Arrival Date')
     flt_no = fields.Char('Fleet No')
@@ -48,7 +51,12 @@ class ShippingCargo(models.Model):
             return self.import_file_for_aircargo()
         else:
             return self.import_file_for_shipfreight()
-
+    def clean_dic(self, data):
+        for key in data.keys():
+            if data[key] == '':
+                # import pudb; pudb.set_trace()
+                data[key] = False
+        return data
     def import_file_for_aircargo(self):
         # import pudb; pudb.set_trace()
         book = xlrd.open_workbook(
@@ -56,10 +64,7 @@ class ShippingCargo(models.Model):
         sheet = book.sheet_by_index(0)
         shipment_data = aircargo_sheets.populate_shipment_data(
             self.shipping_type, sheet)
-        for key in shipment_data.keys():
-            if shipment_data[key] == '':
-                # import pudb; pudb.set_trace()
-                shipment_data[key] = False
+        shipment_data = self.clean_dic(shipment_data)
         self.write(shipment_data)
         cargo = self
         aircargo_items_data = aircargo_sheets.populate_shipping_items_data(self.shipping_type, sheet)
@@ -113,6 +118,7 @@ class ShippingCargo(models.Model):
             new_item_data['cargo_id'] = cargo.id
             for field in same_fields:
                 new_item_data[field] = item_data[field]
+            new_item_data = self.clean_dic(new_item_data)
             self.env['shipping.shipping_item'].create(new_item_data)
         return True
 
@@ -147,6 +153,7 @@ class ShippingCargo(models.Model):
         shipment_data['departure_date'] = datetime.fromisoformat(shipment_data['departure_date'])
         shipment_data['shipping_type'] = 'ship'
         # cargo = self.env['shipping.cargo'].create(shipment_data)
+        shipment_data = self.clean_dic(shipment_data)
         self.write(shipment_data)
         cargo = self
         aircargo_items_data = aircargo_sheets.populate_shipping_items_data(self.shipping_type,
@@ -178,5 +185,13 @@ class ShippingCargo(models.Model):
             new_item_data['cargo_id'] = cargo.id
             for field in same_fields:
                 new_item_data[field] = item_data[field]
+            new_item_data = self.clean_dic(new_item_data)
             self.env['shipping.shipping_item'].create(new_item_data)
         return True
+
+    def action_set_arival(self):
+        # import pudb; pudb.set_trace()
+        # import pudb; pudb.set_trace()
+        for shipping_item in list(self.ship_items):
+            shipping_item.button_set_arival()
+        self.write({'state': 'arrived'})

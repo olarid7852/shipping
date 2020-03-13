@@ -222,3 +222,12 @@ class MyInvoice(models.Model):
                 shipping_item.set_status_to_paid()
                 if shipping_item:
                     move.set_reciept_to_ready(shipping_item)
+
+class MyPartner(models.Model):
+    _inherit = "res.partner"
+    detail = fields.Char(compute='_get_detail', store=False)
+
+    @api.depends('name', 'phone')
+    def _get_detail(self):
+        for partner in self:
+            partner.detail = partner.name + '/' + partner.phone
