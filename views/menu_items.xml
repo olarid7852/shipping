@@ -1,5 +1,9 @@
 <?xml version="1.0" encoding="utf-8"?>
 <odoo>  <!-- Data records go here -->
+  <menuitem id="stock_shipment_menu" name="Shipments" parent="stock.menu_stock_root" sequence="2"/>
+  <menuitem name="Ship" id="menu_ship_shipping_list_1" parent="stock_shipment_menu" action="action_ship_shipping_list"/>
+  <menuitem name="Air" id="menu_air_shipping_list_2" parent="stock_shipment_menu" action="action_air_shipping_list"/>
+
   <menuitem name="Shipments" id="menu_shipments" parent="account.menu_finance" sequence="1"/>
   <menuitem name="Ship" id="menu_ship_shipping_list" parent="menu_shipments" action="action_ship_shipping_list"/>
   <menuitem name="Air" id="menu_air_shipping_list" parent="menu_shipments" action="action_air_shipping_list"/>

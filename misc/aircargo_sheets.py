@@ -3,11 +3,12 @@ def convert_alphabet_no_index(alphabet):
     encoded_alphabet = alphabet.encode('utf-8')
     return int(encoded_alphabet.hex(), 16) - 65
 
+
 def populate_shipment_data(shipping_type, sheet):
     if shipping_type == 'air':
         return populate_shipment_data_for_aircargo(sheet)
     else:
-        return populate_shipment_data_for_shipfrieght(sheet)
+        return populate_shipment_data_for_shipfreight(sheet)
 
 
 def populate_shipping_items_data(shipping_type, sheet):
@@ -15,6 +16,7 @@ def populate_shipping_items_data(shipping_type, sheet):
         return populate_shipping_items_data_for_aircago(sheet)
     else:
         return populate_shipping_items_data_for_shipfreight(sheet)
+
 
 def populate_shipment_data_for_aircargo(sheet):
     data = {}
@@ -28,14 +30,14 @@ def populate_shipment_data_for_aircargo(sheet):
         'shipped_by': (6, 'B')
     }
     for cell_key in field_cells:
-          cell_position = field_cells[cell_key]
-          row, col = cell_position[0] - \
-                1, convert_alphabet_no_index(cell_position[1])
-          data[cell_key] = sheet.cell(row, col).value
+        cell_position = field_cells[cell_key]
+        row, col = cell_position[0] - \
+            1, convert_alphabet_no_index(cell_position[1])
+        data[cell_key] = sheet.cell(row, col).value
     return data
 
 
-def populate_shipment_data_for_shipfrieght(sheet):
+def populate_shipment_data_for_shipfreight(sheet):
     data = {}
     field_cells = {
         'shipping_id': (2, 'A'),
@@ -62,9 +64,11 @@ def populate_shipping_items_data_for_aircago(sheet):
         'marks': 'F',
         'shipper': 'G',
         'name': 'H',
-        'payment': 'I',
-        'quantity': 'J',
-        'sign': 'K',
+        'freight': 'I',
+        'clearing_charge': 'J',
+        'phone_no': 'K',
+        'quantity': 'L',
+        'sign': 'M',
     }
     # Start from row 8 and end at the second to the last row
     # Last row is for total and the first seven rows are general data
@@ -89,8 +93,10 @@ def populate_shipping_items_data_for_shipfreight(sheet):
         'wkg': 'H',
         'consignee': 'I',
         'dest_port': 'J',
-        'payment': 'L',
-        'remark': 'M',
+        'freight': 'L',
+        'clearing_charge': 'M',
+        'phone_no': 'N',
+        'remark': 'O',
     }
     # Start from row 3 and end at the second to the last row
     # Last row is for total and the first seven rows are general data

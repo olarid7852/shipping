@@ -21,7 +21,7 @@ class ShippingCargo(models.Model):
     ship_items = fields.One2many('shipping.shipping_item',
                                  'cargo_id', string='items')
     general_items = fields.One2many('shipping.shipping_item',
-                                 'cargo_id', string='items')
+                                    'cargo_id', string='items')
 
     # aircargo fields
     # mawb_no = fields.Char('MAWB NO')
@@ -44,19 +44,20 @@ class ShippingCargo(models.Model):
     def _get_mawb(self):
         for rule in self:
             rule.mawb_no = self.shipping_id
-    
 
     def import_file(self):
         if self.shipping_type == 'air':
             return self.import_file_for_aircargo()
         else:
             return self.import_file_for_shipfreight()
+
     def clean_dic(self, data):
         for key in data.keys():
             if data[key] == '':
                 # import pudb; pudb.set_trace()
                 data[key] = False
         return data
+
     def import_file_for_aircargo(self):
         # import pudb; pudb.set_trace()
         book = xlrd.open_workbook(
@@ -67,16 +68,19 @@ class ShippingCargo(models.Model):
         shipment_data = self.clean_dic(shipment_data)
         self.write(shipment_data)
         cargo = self
-        aircargo_items_data = aircargo_sheets.populate_shipping_items_data(self.shipping_type, sheet)
+        aircargo_items_data = aircargo_sheets.populate_shipping_items_data(
+            self.shipping_type, sheet)
         for item_data in aircargo_items_data:
             new_item_data = {}
-            same_fields = ['pkgs', 'wkg', 'marks', ]
+            same_fields = ['pkgs', 'wkg', 'marks', 'phone_no']
             new_item_data['shipping_id'] = item_data['hawb_no']
-            new_item_data['payment_choice'] = float(
-                item_data['payment'].split(' ')[-1])
-            new_item_data['payment_company'] = float(item_data['payment'].split(' ')[-1])
+            new_item_data['freight'] = float(
+                item_data['freight'].split(' ')[-1])
+            new_item_data['clearing_charge'] = float(
+                item_data['clearing_charge'])
             product_name = item_data['commodity']
-            product = self.env['product.product'].search([('name', '=', product_name)])
+            product = self.env['product.product'].search(
+                [('name', '=', product_name)])
             if not product:
                 new_item_data['products'] = self.env['product.product'].create({
                     'name': product_name
@@ -133,14 +137,15 @@ class ShippingCargo(models.Model):
         self.write(shipment_data)
         cargo = self
         aircargo_items_data = aircargo_sheets.populate_shipping_items_data(self.shipping_type,
-            sheet)
+                                                                           sheet)
         for item_data in aircargo_items_data:
             new_item_data = {}
             same_fields = ['pkgs', 'wkg', 'marks',
-                           'dest_port', 'shipping_order']
+                           'dest_port', 'shipping_order', 'phone_no']
             new_item_data['shipping_id'] = item_data['hbl']
-            new_item_data['payment_choice'] = float(item_data['payment'])
-            new_item_data['payment_company'] = float(item_data['payment'])
+            new_item_data['freight'] = float(item_data['freight'])
+            new_item_data['clearing_charge'] = float(
+                item_data['clearing_charge'])
             product_name = item_data['goods_description']
             product = self.env['product.product'].search(
                 [('name', '=', product_name)])
@@ -151,7 +156,8 @@ class ShippingCargo(models.Model):
             else:
                 new_item_data['products'] = product.id
             consignee_data = item_data['consignee']
-            consignee = self.find_or_create_partner(self.shipping_type, consignee_data)
+            consignee = self.find_or_create_partner(
+                self.shipping_type, consignee_data)
             new_item_data['consignee_id'] = consignee.id
 
             shipper_data = item_data['shipper']

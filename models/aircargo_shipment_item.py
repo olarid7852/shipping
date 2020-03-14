@@ -6,10 +6,12 @@ class ShippingItem(models.Model):
 
     # common_fields
     shipping_id = fields.Char('ID', required=True)
+    phone_no = fields.Char('Phone number', required=True)
     pkgs = fields.Float('Pkgs', required=True)
     wkg = fields.Float('W.kg', required=True)
-    payment_choice = fields.Float('Payment(Choice)', required=True)
-    payment_company = fields.Float('Clearing Charges', required=True)
+    freight = fields.Float('Freight', required=True)
+    clearing_charge = fields.Float('Clearing Charges', required=True)
+    total_charge = fields.Float(compute='_get_total_charge', store=False)
     products = fields.Many2one(
         'product.product', string="Product", ondelete="cascade")
     marks = fields.Char('Marks')
@@ -79,6 +81,11 @@ class ShippingItem(models.Model):
     sign = fields.Char('Sign')
     location = fields.Char('Location')
     hawb_no = fields.Char(compute='_get_hawb_no', store=False)
+
+    @api.depends('shipping_id',)
+    def _get_total_charge(self):
+        for item in self:
+            item.total_charge = item.freight + item.clearing_charge
 
     @api.depends('shipping_id',)
     def _get_hawb_no(self):
@@ -207,7 +214,7 @@ class ShippingItem(models.Model):
             'invoice_line_ids': [
                 (0, 0, {
                     'name': 'Choice',
-                    'price_unit': self.payment_choice,
+                    'price_unit': self.freight,
                     'quantity': 1,
                     'product_id': self.products.id,
                     'product_uom_id': False,
@@ -216,7 +223,7 @@ class ShippingItem(models.Model):
                 }),
                 (0, 0, {
                     'name': 'Company',
-                    'price_unit': self.payment_company,
+                    'price_unit': self.clearing_charge,
                     'quantity': 1,
                     'product_id': self.products.id,
                     'product_uom_id': False,
